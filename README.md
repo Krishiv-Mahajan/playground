@@ -16,6 +16,7 @@ You can enjoy tutorial experience about Karmada with following platforms.
 * Try [Propagate workload through karmada duplicated mode](https://killercoda.com/karmada/scenario/karmada-HA-workload-example1).
 * Try [Propagate workload through karmada divided mode](https://killercoda.com/karmada/scenario/karmada-HA-workload-example2).
 * Try [Simulate multitype cluster failover through Karmada](https://killercoda.com/karmada/scenario/karmada-Failover-example).
+* Try [Autoscale workloads across clusters with FederatedHPA](https://killercoda.com/karmada/scenario/karmada-FHPA-example).
 
 
 ## Contribution
