@@ -1,9 +1,60 @@
 #!/usr/bin/env bash
 
-# Source common setup functions and variables
-source "$(dirname "$0")/../common-setup.sh"
+set -o errexit
+set -o nounset
+set -o pipefail
 
-# Scenario-specific function for nginx deployment (replicas=3, Divided)
+# variable define
+kind_version=v0.17.0
+host_cluster_ip=172.30.1.2 #host node where Karmada is located
+member_cluster_ip=172.30.2.2
+local_ip=127.0.0.1
+KUBECONFIG_PATH=${KUBECONFIG_PATH:-"${HOME}/.kube"}
+
+function installKind() {
+    cat << EOF > installKind.sh
+    wget https://github.com/kubernetes-sigs/kind/releases/download/${kind_version}/kind-linux-amd64
+    chmod +x kind-linux-amd64
+    sudo mv kind-linux-amd64 /usr/local/bin/kind
+EOF
+}
+
+function createCluster() {
+    cat << EOF > createCluster.sh
+    kind create cluster --name=member1 --config=cluster1.yaml
+    mv $HOME/.kube/config ~/config-member1
+    kind create cluster --name=member2 --config=cluster2.yaml
+    mv $HOME/.kube/config config-member2
+    KUBECONFIG=~/config-member1:~/config-member2 kubectl config view --merge --flatten >> ${KUBECONFIG_PATH}/config
+    # modify ip
+    sed -i "s/${local_ip}/${member_cluster_ip}/g"  config-member1
+    # set StrictHostKeyChecking to no to avoid prompting, the same below
+    scp -o StrictHostKeyChecking=no config-member1 root@${host_cluster_ip}:$HOME/.kube/config-member1
+    sed -i "s/${local_ip}/${member_cluster_ip}/g"  config-member2
+    scp -o StrictHostKeyChecking=no config-member2 root@${host_cluster_ip}:$HOME/.kube/config-member2
+EOF
+}
+
+function cluster1Config() {
+    cat << EOF > cluster1.yaml
+    kind: Cluster
+    apiVersion: kind.x-k8s.io/v1alpha4
+    networking:
+      apiServerAddress: "${member_cluster_ip}"
+      apiServerPort: 6443
+EOF
+}
+
+function cluster2Config() {
+    cat << EOF > cluster2.yaml 
+    kind: Cluster
+    apiVersion: kind.x-k8s.io/v1alpha4
+    networking:
+      apiServerAddress: "${member_cluster_ip}"
+      apiServerPort: 6444
+EOF
+}
+
 function nginxDeployment() {
     cat << EOF > nginxDeployment.yaml
     apiVersion: apps/v1
@@ -60,33 +111,48 @@ function propagationPolicy() {
 EOF
 }
 
-# Setup kubectl environment
-setupKubectl
+function copyConfigFilesToNode() {
+    scp -o StrictHostKeyChecking=no \
+        installKind.sh \
+        createCluster.sh \
+        cluster1.yaml \
+        cluster2.yaml \
+        root@${member_cluster_ip}:~
+}
 
-# Generate configuration scripts and files
+kubectl delete node node01
+kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
+
+# install kind and create member clusters
 installKind
 createCluster
 cluster1Config
 cluster2Config
 copyConfigFilesToNode
 
-# Generate nginx config
+# generate nginx config
 mkdir nginx
 cd nginx
 nginxDeployment
 propagationPolicy
 
-# Create clusters on remote node
-createMemberClusters
+# create cluster in node01 machine
+ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/installKind.sh" &
+sleep 10
+ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/createCluster.sh" &
+sleep 90
 
-# Install karmadactl
-installKarmadactl
+# install karmadactl
+curl -s https://raw.githubusercontent.com/karmada-io/karmada/master/hack/install-cli.sh | sudo bash
 
-# Init karmada
+# init karmada
 karmadactl init
 
-# Join member clusters
-joinMemberClusters
+# join member clusters
+MEMBER_CLUSTER_NAME=kind-member1
+karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config  join ${MEMBER_CLUSTER_NAME} --cluster-kubeconfig=$HOME/.kube/config-member1 --cluster-context=kind-member1
+MEMBER_CLUSTER_NAME=kind-member2
+karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config  join ${MEMBER_CLUSTER_NAME} --cluster-kubeconfig=$HOME/.kube/config-member2 --cluster-context=kind-member2
 
-# clean screen
+# clean screen 
 clear

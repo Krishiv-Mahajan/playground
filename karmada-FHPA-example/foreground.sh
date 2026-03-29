@@ -188,16 +188,15 @@ cluster1Config
 cluster2Config
 copyConfigFilesToNode
 
-# Generate nginx manifests in dedicated directory under $HOME
-mkdir -p "$HOME/nginx"
-cd "$HOME/nginx"
+# Generate nginx manifests
+mkdir nginx
+cd nginx
 nginxDeployment
 nginxService
 propagationPolicy
 federatedHPA
 serviceExport
 serviceImport
-cd "$HOME"
 
 # Create kind clusters on the remote member node
 createMemberClusters

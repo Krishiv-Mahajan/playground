@@ -1,4 +1,4 @@
-### Background
+### Background：
 
 1. The kubeconfig files for the host cluster and member clusters are located in `$HOME/.kube/`:
 
