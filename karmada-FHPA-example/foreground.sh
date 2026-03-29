@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 
-# Source common setup functions and variables from repository root.
-COMMON_SETUP="$(dirname "$0")/../common-setup.sh"
-if [ ! -f "${COMMON_SETUP}" ]; then
-  echo "common-setup.sh not found at ${COMMON_SETUP}; cannot bootstrap environment"
+# Source common setup functions and variables.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "${SCRIPT_DIR}/../common-setup.sh" ]; then
+  COMMON_SETUP="${SCRIPT_DIR}/../common-setup.sh"
+elif [ -f "${SCRIPT_DIR}/common-setup.sh" ]; then
+  COMMON_SETUP="${SCRIPT_DIR}/common-setup.sh"
+elif [ -f "${PWD}/common-setup.sh" ]; then
+  COMMON_SETUP="${PWD}/common-setup.sh"
+else
+  echo "common-setup.sh not found. Checked:"
+  echo "  ${SCRIPT_DIR}/../common-setup.sh"
+  echo "  ${SCRIPT_DIR}/common-setup.sh"
+  echo "  ${PWD}/common-setup.sh"
   exit 1
 fi
 source "${COMMON_SETUP}"
