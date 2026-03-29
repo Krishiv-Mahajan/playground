@@ -77,10 +77,9 @@ function setupKubectl() {
 
 # Create member clusters on remote node
 function createMemberClusters() {
-    ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/installKind.sh" &
-    sleep 10
-    ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/createCluster.sh" &
-    sleep 90
+    # Run sequentially to avoid stopped background ssh jobs and timing races.
+    ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/installKind.sh"
+    ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/createCluster.sh"
 }
 
 # Install karmadactl CLI

@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-# Source common setup functions and variables
-source "$(dirname "$0")/../common-setup.sh"
+# Source common setup functions and variables from repository root.
+COMMON_SETUP="$(dirname "$0")/../common-setup.sh"
+if [ ! -f "${COMMON_SETUP}" ]; then
+  echo "common-setup.sh not found at ${COMMON_SETUP}; cannot bootstrap environment"
+  exit 1
+fi
+source "${COMMON_SETUP}"
 
 # ---------------------------------------------------------------------------
 # Manifest generators
@@ -205,6 +210,11 @@ createMemberClusters
 installKarmadactl
 karmadactl init
 
+if [ ! -f /etc/karmada/karmada-apiserver.config ]; then
+  echo "karmadactl init completed without creating /etc/karmada/karmada-apiserver.config"
+  exit 1
+fi
+
 # Join member clusters
 joinMemberClusters
 
@@ -227,10 +237,10 @@ done
 kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f \
   https://raw.githubusercontent.com/karmada-io/karmada/master/artifacts/deploy/karmada-metrics-adapter.yaml
 
-# Install hey load-testing tool inside the member1 kind container
-# (kind names the container <cluster-name>-control-plane, cluster was created as --name=member1)
-docker exec member1-control-plane bash -c \
-  "curl -sL https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64 -o /usr/local/bin/hey && chmod +x /usr/local/bin/hey" &
+# Install hey load-testing tool inside the member1 kind container.
+# The kind containers run on the member node, so execute docker there via ssh.
+ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} \
+  "docker exec member1-control-plane bash -c 'curl -sL https://hey-release.s3.us-east-2.amazonaws.com/hey_linux_amd64 -o /usr/local/bin/hey && chmod +x /usr/local/bin/hey'" &
 
 # Clear screen after setup completes
 wait
