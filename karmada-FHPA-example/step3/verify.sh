@@ -1,3 +1,3 @@
 #!/bin/bash
 
-kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get fhpa nginx
+kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get federatedhpa nginx
