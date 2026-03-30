@@ -66,20 +66,19 @@ function copyConfigFilesToNode() {
         root@${member_cluster_ip}:~
 }
 
-kubectl delete node node01
-kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
+echo "[intro] Preparing host environment"
+kubectl delete node node01 >/dev/null 2>&1 || true
+kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule- >/dev/null 2>&1 || true
 
-# install kind and create member clusters
+# only generate prerequisites in intro so users can start immediately
 installKind
 createCluster
 cluster1Config
 cluster2Config
 copyConfigFilesToNode
 
-# create cluster in node01 machine
-ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/installKind.sh" &
-sleep 10
-ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/createCluster.sh"
+echo "[intro] Pre-staged cluster scripts on member node"
+echo "[intro] Continue to Step 1 to install Kind and create member clusters"
 
 # clean screen
 clear

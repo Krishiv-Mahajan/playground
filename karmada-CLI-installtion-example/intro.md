@@ -4,4 +4,9 @@ Karmada (Kubernetes Armada) is a Kubernetes management system that enables you t
 
 Karmada aims to provide turnkey automation for multi-cluster application management in multi-cloud and hybrid cloud scenarios, with key features such as centralized multi-cloud management, high availability, failure recovery, and traffic scheduling.
 
-In this scenario, we will learn how to initialize the Karmada control plane and join clusters.
+In this scenario, setup is split into interactive steps so you can start immediately.
+
+1. Step 1 prepares member clusters.
+2. Step 2 installs `karmadactl`.
+3. Step 3 initializes the Karmada control plane.
+4. Step 4 joins member clusters to Karmada.
