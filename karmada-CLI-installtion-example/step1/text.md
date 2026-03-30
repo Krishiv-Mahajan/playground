@@ -1,14 +1,18 @@
-### Background：
+### Prepare member clusters
 
-1. The kubeconfig files for the host cluster, member1 cluster, and member2 cluster are located in the $HOME/.kube directory. These files are named config, config-member1, and config-member2 respectively.
+In intro, the helper scripts were copied to the member node. In this step, you will run them.
 
-   ```shell
-      $HOME/.kube/config
-      $HOME/.kube/config-member1
-      $HOME/.kube/config-member2
-   ```
-2. Check whether the member cluster is ready
+1. Install Kind on the member node.
 
-   RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts`{{exec}}
+   RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/installKind.sh"`{{exec}}
 
-   RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts`{{exec}}
+2. Create `member1` and `member2` clusters and copy kubeconfigs back to the host node.
+   This command can take around 1-2 minutes.
+
+   RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/createCluster.sh"`{{exec}}
+
+3. Confirm both member cluster contexts are available.
+
+   RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts kind-member1`{{exec}}
+
+   RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts kind-member2`{{exec}}
