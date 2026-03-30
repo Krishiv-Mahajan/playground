@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMMON_SETUP="${SCRIPT_DIR}/../common-setup.sh"
+
+if [ ! -f "${COMMON_SETUP}" ]; then
+	echo "common-setup.sh not found at ${COMMON_SETUP}"
+	exit 1
+fi
+
 # Source common setup functions and variables
-source "$(dirname "$0")/../common-setup.sh"
+source "${COMMON_SETUP}"
 
 # Setup kubectl environment
 setupKubectl
@@ -14,9 +22,7 @@ cluster2Config
 copyConfigFilesToNode
 
 # Create clusters on remote node
-ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/installKind.sh" &
-sleep 10
-ssh -o StrictHostKeyChecking=no root@${member_cluster_ip} "bash ~/createCluster.sh"
+createMemberClusters
 
 # clean screen
 clear
