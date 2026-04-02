@@ -1,6 +1,6 @@
 {
-    "title": "install Karmada through CLI",
-    "description": "Installing Karmada on Kubernetes through the Karmada CLI",
+    "title": "Install Karmada through CLI",
+    "description": "Install Karmada on Kubernetes through the Karmada CLI",
     "details": {
       "intro": {
         "text": "intro.md",
@@ -8,22 +8,22 @@
       },
       "steps": [
         {
-          "title": "Check member cluster",
+          "title": "Environment overview",
           "text": "step1/text.md",
           "verify": "step1/verify.sh"
         },
         {
-          "title": "install Karmadactl",
+          "title": "Install karmadactl and initialize Karmada",
           "text": "step2/text.md",
           "verify": "step2/verify.sh"
         },
         {
-          "title": "initialize karamda",
+          "title": "Prepare member clusters",
           "text": "step3/text.md",
           "verify": "step3/verify.sh"
         },
         {
-          "title": "join member clusters to host cluster",
+          "title": "Join member clusters to the host cluster",
           "text": "step4/text.md",
           "verify": "step4/verify.sh"
         }
