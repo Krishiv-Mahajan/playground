@@ -1,19 +1,24 @@
-### Join member clusters to the host cluster
+### Prepare member clusters
 
-1. Join `kind-member1` and `kind-member2` to the host cluster.
+**Install Kind on the member node:**
 
-   RUN `MEMBER_CLUSTER_NAME=kind-member1`{{exec}}
+RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/installKind.sh"`{{exec}}
 
-   RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config join ${MEMBER_CLUSTER_NAME} --cluster-kubeconfig=$HOME/.kube/config-member1 --cluster-context=kind-member1`{{exec}}
+This command connects to node01 via SSH and installs Kind (Kubernetes in Docker), which is used to create local Kubernetes clusters.
 
-   RUN `MEMBER_CLUSTER_NAME=kind-member2`{{exec}}
+**Create two clusters (`member1` and `member2`):**
 
-   RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config join ${MEMBER_CLUSTER_NAME} --cluster-kubeconfig=$HOME/.kube/config-member2 --cluster-context=kind-member2`{{exec}}
-2. Check Karmada resources.
+RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/createCluster.sh"`{{exec}}
 
-   RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get clusters`{{exec}}
-3. The following example output indicates that the member clusters have been joined successfully.
+This script creates two Kubernetes clusters (`member1` and `member2`) and copies their kubeconfig files back to the host node.
+This step may take 1-2 minutes.
 
-   ![Scan results](../image/success.png)
+**Verify clusters:**
 
-**Note:** If a join command fails due to a transient issue, rerun that specific join command.
+RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts kind-member1`{{exec}}
+
+This verifies that the member1 cluster context is correctly configured.
+
+RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts kind-member2`{{exec}}
+
+This verifies that the member2 cluster context is available.

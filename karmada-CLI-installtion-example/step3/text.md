@@ -1,24 +1,13 @@
-### Prepare member clusters
+### Initialize Karmada control plane
 
-**Install Kind on the member node:**
+**Initialize Karmada control plane:**
 
-RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/installKind.sh"`{{exec}}
+RUN `karmadactl init`{{exec}}
 
-This command connects to node01 via SSH and installs Kind (Kubernetes in Docker), which is used to create local Kubernetes clusters.
+This sets up the Karmada control plane on the host cluster, including API server and controllers.
 
-**Create two clusters (`member1` and `member2`):**
+**Verify initialization:**
 
-RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/createCluster.sh"`{{exec}}
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config config get-contexts karmada-apiserver`{{exec}}
 
-This script creates two Kubernetes clusters (`member1` and `member2`) and copies their kubeconfig files back to the host node.
-This step may take 1-2 minutes.
-
-**Verify clusters:**
-
-RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts kind-member1`{{exec}}
-
-This verifies that the member1 cluster context is correctly configured.
-
-RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts kind-member2`{{exec}}
-
-This verifies that the member2 cluster context is available.
+This ensures that the Karmada API server context is available and configured correctly.
