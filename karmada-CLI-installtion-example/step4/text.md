@@ -16,4 +16,4 @@
 
    ![Scan results](../image/success.png)
 
-Note: If a join command fails due to a transient issue, rerun that specific join command.
+**Note:** If a join command fails due to a transient issue, rerun that specific join command.
