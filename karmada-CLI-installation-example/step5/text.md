@@ -23,8 +23,8 @@
    RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get clusters`{{exec}}
 
    This command lists all the member clusters that have successfully joined the Karmada control plane.
-3. The following example output indicates that the member clusters have been joined successfully.
+3. The following image shows the expected output, indicating that the member clusters have been joined successfully.
 
-   ![Scan results](../image/success.png)
+![Joined clusters](../image/success.png)
 
 **Note:** If a join command fails due to a transient issue, rerun that specific join command.
