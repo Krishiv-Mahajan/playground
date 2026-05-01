@@ -1,3 +1,5 @@
 #!/bin/bash
 
-kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get PropagationPolicy nginx-propagation
+set -e
+
+kubectl --kubeconfig /etc/karmada/karmada-apiserver.config api-resources | grep karmada

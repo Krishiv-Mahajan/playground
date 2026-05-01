@@ -1,5 +1,16 @@
-### create deployment
+# Verify member cluster readiness
 
-create deployment named nginx
+**Verify member1 context:**
 
-   RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/nginxDeployment.yaml`{{exec}}
+RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts kind-member1`{{exec}}
+
+This validates that the member1 cluster context is correctly configured.
+
+**Verify member2 context:**
+
+RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts kind-member2`{{exec}}
+
+This validates that the member2 cluster context is correctly configured.
+
+At this point member cluster kubeconfigs are ready for Karmada operations.
+
