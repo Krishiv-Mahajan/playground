@@ -1,23 +1,18 @@
-# Verify weighted distribution across clusters
+# Create PropagationPolicy with StaticWeight
 
-**Check distributed deployment status:**
+**Create PropagationPolicy for `nginx` with weighted distribution:**
 
-RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get deployment`{{exec}}
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/propagationPolicy.yaml`{{exec}}
 
-This shows the nginx deployment status aggregated across all member clusters. You should see `3/3` pods READY as shown below:
+This applies a policy that distributes replicas across clusters using static weight scheduling.
 
-![Expected deployment status](../image/deployment-ready.png)
+This policy selects the nginx Deployment and divides the 3 replicas across member clusters using a 2:1 weight ratio:
 
-> **Note:** If READY shows `0/3`, wait ~30 seconds and run the command again — Karmada's scheduler needs a moment to reconcile and propagate the workload to member clusters.
+- kind-member1: 2 replicas (weight: 2)
+- kind-member2: 1 replica (weight: 1)
 
-**Check binding status:**
+**Verify policy exists:**
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding`{{exec}}
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get propagationpolicy nginx-propagation`{{exec}}
 
-This confirms that the ResourceBinding was scheduled and fully applied to the member clusters.
-
-**Check distributed pod status:**
-
-RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get pods`{{exec}}
-
-This shows the running pods across member clusters. If it briefly returns no resources, wait a few seconds and run it again after reconciliation completes.
+This checks that the propagation policy has been successfully created.

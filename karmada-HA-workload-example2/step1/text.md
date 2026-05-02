@@ -1,25 +1,18 @@
-# Environment overview and prepare member clusters
+# Environment Overview
 
 The environment consists of two hosts:
 
 1. `controlplane`: The host Kubernetes cluster where Karmada runs. The kubeconfig files for the host cluster are located in the `$HOME/.kube` directory.
-2. `node01`: Used to create member clusters.
+2. `node01`: Used to create member clusters using Kind.
 
 | HostName | Host IP |
 | --- | --- |
 | controlplane | 172.30.1.2 |
 | node01 | 172.30.2.2 |
 
-**Install Kind on member node:**
+In this scenario you will:
 
-RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/installKind.sh"`{{exec}}
-
-This installs Kind on the remote node to enable creation of Kubernetes clusters.
-
-**Create member clusters:**
-
-RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/createCluster.sh"`{{exec}}
-
-This creates multiple Kubernetes member clusters using Kind.
-
-This step may take 1-2 minutes.
+1. Install `karmadactl` and initialize the Karmada control plane on `controlplane`.
+2. Create the Kind-based member clusters on `node01`.
+3. Join the member clusters to Karmada.
+4. Deploy an nginx workload and verify weighted distribution using `Divided` + `StaticWeight` scheduling.

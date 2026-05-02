@@ -1,27 +1,23 @@
-# Install karmadactl and initialize Karmada
+# Prepare Member Clusters
 
-**Install `karmadactl`:**
+With the Karmada control plane running, you can now create the member clusters on `node01`.
 
-RUN `curl -s https://raw.githubusercontent.com/karmada-io/karmada/master/hack/install-cli.sh | sudo bash`{{exec}}
+**Install Kind on member node:**
 
-This downloads and installs the Karmada CLI tool for managing multi-cluster operations.
+RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/installKind.sh"`{{exec}}
 
-**Verify installation:**
+This installs Kind on the remote node to enable creation of Kubernetes clusters.
 
-RUN `karmadactl version`{{exec}}
+**Create member clusters:**
 
-This confirms that the `karmadactl` CLI is installed and accessible.
+RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/createCluster.sh"`{{exec}}
 
-**Initialize Karmada control plane:**
+This creates two Kubernetes member clusters (`member1` and `member2`) using Kind, and copies their kubeconfig files to the controlplane node.
 
-RUN `karmadactl init`{{exec}}
+> **Note:** This step may take **1–2 minutes** — wait for the prompt to return before proceeding.
 
-This bootstraps the Karmada control plane on the host cluster.
+**Verify clusters were created:**
 
-> **Note:** `karmadactl init` deploys etcd, the Karmada API server, scheduler, and controller manager. This takes approximately **2–3 minutes** — wait for the prompt to return before proceeding.
+RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "kind get clusters"`{{exec}}
 
-**Verify initialization:**
-
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config config get-contexts karmada-apiserver`{{exec}}
-
-This confirms the Karmada API server context is available.
+Both `member1` and `member2` should appear in the output.

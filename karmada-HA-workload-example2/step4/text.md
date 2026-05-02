@@ -1,23 +1,17 @@
-# Join member clusters
+# Verify Member Cluster Readiness
 
-**Join `kind-member1`:**
+Before joining clusters to Karmada, confirm that the kubeconfig files were correctly copied to the controlplane node.
 
-RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config join kind-member1 --cluster-kubeconfig=$HOME/.kube/config-member1 --cluster-context=kind-member1`{{exec}}
+**Verify member1 context:**
 
-This registers the member1 cluster with the Karmada control plane for scheduling.
+RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts kind-member1`{{exec}}
 
-**Join `kind-member2`:**
+This validates that the member1 cluster context is correctly configured.
 
-RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config join kind-member2 --cluster-kubeconfig=$HOME/.kube/config-member2 --cluster-context=kind-member2`{{exec}}
+**Verify member2 context:**
 
-This registers the member2 cluster with the Karmada control plane for scheduling.
+RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts kind-member2`{{exec}}
 
-**Check joined clusters:**
+This validates that the member2 cluster context is correctly configured.
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get clusters`{{exec}}
-
-This lists all clusters currently managed by Karmada. Both clusters should show `READY=True` as shown below:
-
-![Expected cluster status](../image/success.png)
-
-**Note:** If a join command fails because the cluster is already registered, continue to the cluster check command.
+At this point the member cluster kubeconfigs are ready for Karmada join operations.

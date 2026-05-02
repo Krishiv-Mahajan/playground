@@ -1,6 +1,5 @@
 #!/bin/bash
+set -e
 
-clusters=$(ssh -o StrictHostKeyChecking=no root@172.30.2.2 "kind get clusters")
-echo "$clusters" | grep -x member1
-echo "$clusters" | grep -x member2
-
+# Verify node01 is reachable
+ssh -o StrictHostKeyChecking=no root@172.30.2.2 "echo node01 ready"

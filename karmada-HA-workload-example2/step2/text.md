@@ -1,15 +1,27 @@
-# Verify member cluster readiness
+# Install karmadactl and Initialize Karmada
 
-**Verify member1 context:**
+**Install `karmadactl`:**
 
-RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts kind-member1`{{exec}}
+RUN `curl -s https://raw.githubusercontent.com/karmada-io/karmada/master/hack/install-cli.sh | sudo bash`{{exec}}
 
-This validates that the member1 cluster context is correctly configured.
+This downloads and installs the Karmada CLI tool for managing multi-cluster operations.
 
-**Verify member2 context:**
+**Verify installation:**
 
-RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts kind-member2`{{exec}}
+RUN `karmadactl version`{{exec}}
 
-This validates that the member2 cluster context is correctly configured.
+This confirms that the `karmadactl` CLI is installed and accessible.
 
-At this point member cluster kubeconfigs are ready for Karmada operations.
+**Initialize Karmada control plane:**
+
+RUN `karmadactl init`{{exec}}
+
+This bootstraps the Karmada control plane on the host cluster.
+
+> **Note:** `karmadactl init` deploys etcd, the Karmada API server, scheduler, and controller manager. This takes approximately **2–3 minutes** — wait for the prompt to return before proceeding.
+
+**Verify initialization:**
+
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config config get-contexts karmada-apiserver`{{exec}}
+
+This confirms the Karmada API server context is available.
