@@ -1,17 +1,23 @@
-# Verify Member Cluster Readiness
+# Prepare Member Clusters
 
-Before joining clusters to Karmada, confirm that the kubeconfig files were correctly copied to the controlplane node.
+With the Karmada control plane running, you can now create the member clusters on `node01`.
 
-**Verify member1 context:**
+**Install Kind on member node:**
 
-RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts kind-member1`{{exec}}
+RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/installKind.sh"`{{exec}}
 
-This validates that the member1 cluster context is correctly configured.
+This installs Kind on the remote node to enable creation of Kubernetes clusters.
 
-**Verify member2 context:**
+**Create member clusters:**
 
-RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts kind-member2`{{exec}}
+RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "bash ~/createCluster.sh"`{{exec}}
 
-This validates that the member2 cluster context is correctly configured.
+This creates two Kubernetes member clusters (`member1` and `member2`) using Kind, and copies their kubeconfig files to the controlplane node.
 
-At this point the member cluster kubeconfigs are ready for Karmada join operations.
+> **Note:** This step may take **1–2 minutes** — wait for the prompt to return before proceeding.
+
+**Verify clusters were created:**
+
+RUN `ssh -o StrictHostKeyChecking=no root@172.30.2.2 "kind get clusters"`{{exec}}
+
+Both `member1` and `member2` should appear in the output.

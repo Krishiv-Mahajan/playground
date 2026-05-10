@@ -1,16 +1,13 @@
-# Create PropagationPolicy with Duplicated mode
+# Create deployment
 
-**Create PropagationPolicy for `nginx` with Duplicated scheduling:**
+**Create deployment named `nginx` with 1 replica:**
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/propagationPolicy.yaml`{{exec}}
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/nginxDeployment.yaml`{{exec}}
 
-This applies a policy that propagates the full nginx deployment to every member cluster listed in `clusterAffinity`. With `replicaSchedulingType: Duplicated`, each cluster receives its own independent copy of the deployment — no replica splitting occurs.
+Creates the nginx workload in the Karmada control plane. With Duplicated scheduling, this single replica definition will be copied to every member cluster.
 
-- kind-member1: 1 full copy (1 pod)
-- kind-member2: 1 full copy (1 pod)
+**Verify deployment exists:**
 
-**Verify policy exists:**
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get deployment nginx`{{exec}}
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get propagationpolicy nginx-propagation`{{exec}}
-
-This checks that the propagation policy has been successfully created.
+This confirms that the nginx deployment exists in the control plane.
