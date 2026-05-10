@@ -1,18 +1,13 @@
-# Create PropagationPolicy with StaticWeight
+# Create Deployment
 
-**Create PropagationPolicy for `nginx` with weighted distribution:**
+**Create deployment named `nginx` with 3 replicas:**
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/propagationPolicy.yaml`{{exec}}
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/nginxDeployment.yaml`{{exec}}
 
-This applies a policy that distributes replicas across clusters using static weight scheduling.
+Creates the nginx workload with defined replicas in the Karmada control plane.
 
-This policy selects the nginx Deployment and divides the 3 replicas across member clusters using a 2:1 weight ratio:
+**Verify deployment exists:**
 
-- kind-member1: 2 replicas (weight: 2)
-- kind-member2: 1 replica (weight: 1)
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get deployment nginx`{{exec}}
 
-**Verify policy exists:**
-
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get propagationpolicy nginx-propagation`{{exec}}
-
-This checks that the propagation policy has been successfully created.
+This confirms that the nginx deployment exists in the control plane.

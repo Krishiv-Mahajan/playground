@@ -13,39 +13,44 @@
         "verify": "step1/verify.sh"
       },
       {
-        "title": "Install karmadactl and initialize Karmada",
+        "title": "Install karmadactl",
         "text": "step2/text.md",
         "verify": "step2/verify.sh"
       },
       {
-        "title": "Prepare member clusters",
+        "title": "Initialize Karmada",
         "text": "step3/text.md",
         "verify": "step3/verify.sh"
       },
       {
-        "title": "Verify member cluster readiness",
+        "title": "Prepare member clusters",
         "text": "step4/text.md",
         "verify": "step4/verify.sh"
       },
       {
-        "title": "Join member clusters",
+        "title": "Verify member cluster readiness",
         "text": "step5/text.md",
         "verify": "step5/verify.sh"
       },
       {
-        "title": "Create deployment",
+        "title": "Join member clusters",
         "text": "step6/text.md",
         "verify": "step6/verify.sh"
       },
       {
-        "title": "Create PropagationPolicy with StaticWeight",
+        "title": "Create deployment",
         "text": "step7/text.md",
         "verify": "step7/verify.sh"
       },
       {
-        "title": "Verify weighted distribution across clusters",
+        "title": "Create PropagationPolicy with StaticWeight",
         "text": "step8/text.md",
         "verify": "step8/verify.sh"
+      },
+      {
+        "title": "Verify weighted distribution across clusters",
+        "text": "step9/text.md",
+        "verify": "step9/verify.sh"
       }
     ],
     "finish": {

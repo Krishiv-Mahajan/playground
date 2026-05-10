@@ -1,13 +1,21 @@
-# Create Deployment
+# Join Member Clusters
 
-**Create deployment named `nginx` with 3 replicas:**
+**Join `kind-member1`:**
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/nginxDeployment.yaml`{{exec}}
+RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config join kind-member1 --cluster-kubeconfig=$HOME/.kube/config-member1 --cluster-context=kind-member1`{{exec}}
 
-Creates the nginx workload with defined replicas in the Karmada control plane.
+This registers the member1 cluster with the Karmada control plane for scheduling.
 
-**Verify deployment exists:**
+**Join `kind-member2`:**
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get deployment nginx`{{exec}}
+RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config join kind-member2 --cluster-kubeconfig=$HOME/.kube/config-member2 --cluster-context=kind-member2`{{exec}}
 
-This confirms that the nginx deployment exists in the control plane.
+This registers the member2 cluster with the Karmada control plane for scheduling.
+
+**Check joined clusters:**
+
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get clusters`{{exec}}
+
+This lists all clusters currently managed by Karmada. Both clusters should show `READY=True`.
+
+**Note:** If a join command fails because the cluster is already registered, continue to the cluster check command.

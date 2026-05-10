@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
 
-kubectl --kubeconfig=$HOME/.kube/config-member1 config get-contexts kind-member1
-kubectl --kubeconfig=$HOME/.kube/config-member2 config get-contexts kind-member2
+clusters=$(ssh -o StrictHostKeyChecking=no root@172.30.2.2 "kind get clusters")
+echo "$clusters" | grep -x member1
+echo "$clusters" | grep -x member2
