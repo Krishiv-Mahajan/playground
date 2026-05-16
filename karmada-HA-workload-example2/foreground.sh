@@ -123,7 +123,7 @@ function copyConfigFilesToNode() {
 kubectl delete node node01
 kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
 
-# prepare helper scripts and cluster config files
+# install kind and create member clusters
 installKind
 createCluster
 cluster1Config

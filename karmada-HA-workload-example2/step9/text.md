@@ -8,14 +8,9 @@ This shows the nginx deployment status aggregated across all member clusters. Yo
 
 > **Note:** If READY shows `0/3`, wait ~30 seconds and run the command again — Karmada's scheduler needs a moment to reconcile and propagate the workload to member clusters.
 
-**Check binding status:**
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding`{{exec}}
+**Check the quantity distribution of pods:**
 
-This confirms that the ResourceBinding was scheduled and fully applied to the member clusters.
+RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get pods  --operation-scope members`{{exec}}
 
-**Check distributed pod status:**
-
-RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get pods`{{exec}}
-
-This shows the running pods across member clusters. If it briefly returns no resources, wait a few seconds and run it again after reconciliation completes.
+This shows the running pods across member clusters. There are 2 pods in `kind-member1` and 1 pod in `kind-member2`.
