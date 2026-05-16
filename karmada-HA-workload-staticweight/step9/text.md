@@ -6,6 +6,8 @@ RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get deploymen
 
 This shows the nginx deployment status aggregated across all member clusters. You should see `3/3` pods READY.
 
+![Expected output: nginx deployment showing 3/3 replicas READY across member clusters](image/deployment-ready.png)
+
 > **Note:** If READY shows `0/3`, wait ~30 seconds and run the command again — Karmada's scheduler needs a moment to reconcile and propagate the workload to member clusters.
 
 

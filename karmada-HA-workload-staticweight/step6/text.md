@@ -18,4 +18,6 @@ RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get clusters`{{e
 
 This lists all clusters currently managed by Karmada. Both clusters should show `READY=True`.
 
+![Expected output: both member clusters showing READY=True](image/success.png)
+
 **Note:** If a join command fails because the cluster is already registered, continue to the cluster check command.
