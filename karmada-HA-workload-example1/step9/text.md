@@ -22,8 +22,6 @@ This confirms that the ResourceBinding was scheduled and fully applied to the me
 
 **Check pods on each member cluster directly:**
 
-RUN `kubectl --kubeconfig $HOME/.kube/config-member1 get pods`{{exec}}
-
-RUN `kubectl --kubeconfig $HOME/.kube/config-member2 get pods`{{exec}}
+RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get pods --operation-scope members`{{exec}}
 
 Each cluster should show exactly 1 nginx pod running — a full duplicate on each cluster.
