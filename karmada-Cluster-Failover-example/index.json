@@ -33,23 +33,18 @@
           "verify": "step5/verify.sh"
         },
         {
-          "title": "Enable Failover and Eviction feature gates",
+          "title": "Create deployment",
           "text": "step6/text.md",
           "verify": "step6/verify.sh"
         },
         {
-          "title": "Create deployment",
+          "title": "Simulate cluster failure",
           "text": "step7/text.md",
           "verify": "step7/verify.sh"
         },
         {
-          "title": "Simulate cluster failure",
-          "text": "step8/text.md",
-          "verify": "step8/verify.sh"
-        },
-        {
           "title": "Check the status and quantity distribution of pods and deployments",
-          "text": "step9/text.md"
+          "text": "step8/text.md"
         }
       ],
       "finish": {
