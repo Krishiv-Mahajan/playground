@@ -1,4 +1,4 @@
-Now, you will create a Volcano Job. This CR contains multiple nested components (in this case, two different tasks: driver and worker), each requiring different resources.
+Now, you will create a Volcano Job. This custom resource contains multiple nested components, each requiring different resources.
 
 Create `volcano-job.yaml`:
 
@@ -13,27 +13,27 @@ spec:
   schedulerName: volcano
   tasks:
     - replicas: 1
-      name: driver
+      name: job-nginx1
       template:
         spec:
           containers:
-            - name: driver-container
+            - name: container-nginx1
               image: nginx
               resources:
                 requests:
-                  cpu: "500m"
-                  memory: "256Mi"
+                  cpu: "200m"
+                  memory: "100Mi"
     - replicas: 2
-      name: worker
+      name: job-nginx2
       template:
         spec:
           containers:
-            - name: worker-container
+            - name: container-nginx2
               image: nginx
               resources:
                 requests:
-                  cpu: "1"
-                  memory: "512Mi"
+                  cpu: "100m"
+                  memory: "100Mi"
 ```
 
 Command to run:

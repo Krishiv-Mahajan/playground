@@ -6,4 +6,4 @@ Command to run:
 kubectl get resourcebinding ai-training-job -n default -o yaml
 ```
 
-Look for the `spec.components` section in the terminal output. You will see that Karmada has mathematically mapped out the requirements for both the driver (1 replica, 500m CPU) and the worker (2 replicas, 1 CPU each).
+Look for the `spec.components` section in the terminal output. You will see that Karmada has mathematically mapped out the requirements for both `job-nginx1` (1 replica, 200m CPU, 100Mi Memory) and `job-nginx2` (2 replicas, 100m CPU, 100Mi Memory each).

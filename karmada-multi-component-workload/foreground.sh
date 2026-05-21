@@ -66,6 +66,84 @@ function copyConfigFilesToNode() {
         root@${member_cluster_ip}:~
 }
 
+function crdPolicy() {
+    cat << EOF > crd-policy.yaml
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterPropagationPolicy
+metadata:
+  name: volcano-job-crd-cpp
+spec:
+  resourceSelectors:
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      name: jobs.batch.volcano.sh
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - cluster1
+        - cluster2
+EOF
+}
+
+function volcanoJob() {
+    cat << EOF > volcano-job.yaml
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: ai-training-job
+  namespace: default
+spec:
+  minAvailable: 3
+  schedulerName: volcano
+  tasks:
+    - replicas: 1
+      name: job-nginx1
+      template:
+        spec:
+          containers:
+            - name: container-nginx1
+              image: nginx
+              resources:
+                requests:
+                  cpu: "200m"
+                  memory: "100Mi"
+    - replicas: 2
+      name: job-nginx2
+      template:
+        spec:
+          containers:
+            - name: container-nginx2
+              image: nginx
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "100Mi"
+EOF
+}
+
+function jobPolicy() {
+    cat << EOF > job-policy.yaml
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: ai-training-policy
+  namespace: default
+spec:
+  resourceSelectors:
+    - apiVersion: batch.volcano.sh/v1alpha1
+      kind: Job
+      name: ai-training-job
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - cluster1
+        - cluster2
+    replicaScheduling:
+      replicaDivisionPreference: Aggregated
+      replicaSchedulingType: Divided
+EOF
+}
+
 kubectl delete node node01
 kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
 
@@ -75,6 +153,11 @@ createCluster
 cluster1Config
 cluster2Config
 copyConfigFilesToNode
+
+# generate scenario yamls
+crdPolicy
+volcanoJob
+jobPolicy
 
 # clean screen
 clear
