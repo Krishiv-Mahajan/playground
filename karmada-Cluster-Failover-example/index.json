@@ -1,0 +1,58 @@
+{
+    "title": "Karmada failover example",
+    "description": "Simulate multiple cluster failover through Karmada",
+    "details": {
+      "intro": {
+        "text": "intro.md",
+        "foreground": "foreground.sh"
+      },
+      "steps": [
+        {
+          "title": "Environment overview",
+          "text": "step1/text.md",
+          "verify": "step1/verify.sh"
+        },
+        {
+          "title": "Install karmadactl",
+          "text": "step2/text.md",
+          "verify": "step2/verify.sh"
+        },
+        {
+          "title": "Initialize Karmada control plane",
+          "text": "step3/text.md",
+          "verify": "step3/verify.sh"
+        },
+        {
+          "title": "Prepare member clusters",
+          "text": "step4/text.md",
+          "verify": "step4/verify.sh"
+        },
+        {
+          "title": "Join member clusters to the host cluster",
+          "text": "step5/text.md",
+          "verify": "step5/verify.sh"
+        },
+        {
+          "title": "Create deployment",
+          "text": "step6/text.md",
+          "verify": "step6/verify.sh"
+        },
+        {
+          "title": "Simulate cluster failure",
+          "text": "step7/text.md",
+          "verify": "step7/verify.sh"
+        },
+        {
+          "title": "Check the status and quantity distribution of pods and deployments",
+          "text": "step8/text.md",
+          "verify": "step8/verify.sh"
+        }
+      ],
+      "finish": {
+        "text": "finish.md"
+      }
+    },
+    "backend": {
+      "imageid": "kubernetes-kubeadm-2nodes"
+    }
+  }
