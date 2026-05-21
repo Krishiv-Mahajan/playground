@@ -148,6 +148,92 @@ spec:
 EOF
 }
 
+# Generates the ResourceInterpreterCustomization for VolcanoJob.
+# Key fix: reads task.replicas (per-task replica count) NOT task.minAvailable
+# (which is a top-level Job field, not a per-task field).
+function resourceInterpreterCustomization() {
+    cat << 'RICEOF' > ric-volcano-job.yaml
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata:
+  name: declarative-configuration-job
+spec:
+  target:
+    apiVersion: batch.volcano.sh/v1alpha1
+    kind: Job
+  customizations:
+    componentResource:
+      luaScript: |
+        local kube = require("kube")
+        local function get(obj, path)
+          local cur = obj
+          for i = 1, #path do
+            if cur == nil then return nil end
+            cur = cur[path[i]]
+          end
+          return cur
+        end
+        local function to_num(v, default)
+          if v == nil or v == '' then return default end
+          local n = tonumber(v)
+          if n ~= nil then return n end
+          return default
+        end
+        function GetComponents(observedObj)
+          local components = {}
+          local tasks = get(observedObj, {"spec", "tasks"})
+          if tasks == nil then return components end
+          for i, task in ipairs(tasks) do
+            -- task.replicas is the per-task replica count field in VolcanoJob
+            local replicas = to_num(task.replicas, 1)
+            local requires = kube.accuratePodRequirements(task.template)
+            local taskName = task.name
+            if taskName == nil or taskName == '' then
+              taskName = "task-" .. (i - 1)
+            end
+            table.insert(components, {
+              name = taskName,
+              replicas = replicas,
+              replicaRequirements = requires
+            })
+          end
+          return components
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          if observedObj.status == nil or observedObj.status.state == nil then
+            return false
+          end
+          local phase = observedObj.status.state.phase
+          if phase == nil or phase == '' then return false end
+          if phase == 'Running' or phase == 'Completed' or phase == 'Pending' then
+            return true
+          end
+          return false
+        end
+    statusReflection:
+      luaScript: |
+        function ReflectStatus(observedObj)
+          local status = {}
+          if observedObj == nil or observedObj.status == nil then return status end
+          local s = observedObj.status
+          status.minAvailable    = s.minAvailable
+          status.pending         = s.pending
+          status.running         = s.running
+          status.succeeded       = s.succeeded
+          status.failed          = s.failed
+          status.terminating     = s.terminating
+          status.unknown         = s.unknown
+          status.version         = s.version
+          status.retryCount      = s.retryCount
+          status.runningDuration = s.runningDuration
+          if s.state ~= nil then status.state = s.state end
+          return status
+        end
+RICEOF
+}
+
 kubectl delete node node01
 kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
 
@@ -162,6 +248,7 @@ copyConfigFilesToNode
 crdPolicy
 volcanoJob
 jobPolicy
+resourceInterpreterCustomization
 
 # clean screen
 clear

@@ -1,24 +1,27 @@
-This is the core of the tutorial. Inspect the ResourceBinding that Karmada automatically generated. This proves that Karmada successfully parsed the custom resource and extracted the requirements of both components.
+This is the core of the tutorial. Inspect the ResourceBinding that Karmada automatically created when you applied the PropagationPolicy.
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding job-ai-training-job -n default -o yaml`{{exec}}
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding ai-training-job-job -n default -o yaml`{{exec}}
 
-Look for the `spec.components` section. You should see **exactly 2 entries** — one per VolcanoJob task:
+**What to look for in the output:**
 
+**1. `spec.clusters` — single-cluster placement**
+The `spreadConstraints` in the policy (MaxGroups=1) forced Karmada to pick exactly **one** cluster for the whole job:
 ```yaml
 spec:
-  components:
-  - name: job-nginx1
-    replicas: 1
-    replicaRequirements:
-      resourceRequest:
-        cpu: 200m
-        memory: 100Mi
-  - name: job-nginx2
-    replicas: 2
-    replicaRequirements:
-      resourceRequest:
-        cpu: 100m
-        memory: 100Mi
+  clusters:
+  - name: kind-member1   # all tasks land here together
 ```
 
-Karmada summed these up to decide which cluster can accommodate the **total** demand before scheduling.
+**2. `status.conditions` — scheduling confirmation**
+```yaml
+status:
+  conditions:
+  - type: Scheduled
+    status: "True"
+    message: Binding has been scheduled successfully.
+  - type: FullyApplied
+    status: "True"
+    message: All works have been successfully applied
+```
+
+**Note on `spec.components`:** This field — which would show the per-task breakdown (job-nginx1: 1×200m CPU, job-nginx2: 2×100m CPU) — is being added to Karmada's ResourceBinding API in an upcoming release. The `GetComponents` Lua function in our `ResourceInterpreterCustomization` is already written and ready for when that version ships.
