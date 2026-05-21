@@ -138,6 +138,10 @@ spec:
       clusterNames:
         - kind-member1
         - kind-member2
+    spreadConstraints:
+      - spreadByField: cluster
+        maxGroups: 1
+        minGroups: 1
     replicaScheduling:
       replicaDivisionPreference: Aggregated
       replicaSchedulingType: Divided
