@@ -1,9 +1,9 @@
 Finally, verify that the workload was scheduled and dispatched to a member cluster.
 
-```bash
-# Check Karmada's scheduling decision
-kubectl get resourcebinding ai-training-job -n default -o wide
+Check Karmada's scheduling decision:
 
-# Check the workload on the specific member cluster (assuming it landed on cluster1)
-kubectl --kubeconfig ~/.kube/members.config --context cluster1 get jobs.batch.volcano.sh
-```
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding ai-training-job -n default -o wide`{{exec}}
+
+Check the workload on `kind-member1` (the clusters this landed on can be seen in the output above, it may vary):
+
+RUN `kubectl --kubeconfig $HOME/.kube/config-member1 get jobs.batch.volcano.sh`{{exec}}

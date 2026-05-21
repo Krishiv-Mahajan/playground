@@ -34,27 +34,33 @@
         },
         {
           "title": "Install the Custom Resource Definition (CRD)",
-          "text": "step6/text.md"
+          "text": "step6/text.md",
+          "verify": "step6/verify.sh"
         },
         {
           "title": "Propagate the CRD to Member Clusters",
-          "text": "step7/text.md"
+          "text": "step7/text.md",
+          "verify": "step7/verify.sh"
         },
         {
           "title": "Create the Multi-Component Workload",
-          "text": "step8/text.md"
+          "text": "step8/text.md",
+          "verify": "step8/verify.sh"
         },
         {
           "title": "Apply the Scheduling Strategy",
-          "text": "step9/text.md"
+          "text": "step9/text.md",
+          "verify": "step9/verify.sh"
         },
         {
           "title": "Inspect ResourceBinding",
-          "text": "step10/text.md"
+          "text": "step10/text.md",
+          "verify": "step10/verify.sh"
         },
         {
           "title": "Verify Successful Scheduling",
-          "text": "step11/text.md"
+          "text": "step11/text.md",
+          "verify": "step11/verify.sh"
         }
       ],
       "finish": {

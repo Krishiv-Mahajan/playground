@@ -2,6 +2,4 @@ Before Karmada can schedule a multi-component AI workload, the control plane nee
 
 Apply the Volcano Job CRD to the Karmada control plane:
 
-```bash
-kubectl apply -f https://raw.githubusercontent.com/volcano-sh/volcano/master/installer/helm/chart/volcano/templates/crd/batch.volcano.sh_jobs.yaml
-```
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f https://raw.githubusercontent.com/volcano-sh/volcano/master/installer/helm/chart/volcano/crd/bases/batch.volcano.sh_jobs.yaml`{{exec}}
