@@ -80,8 +80,8 @@ spec:
   placement:
     clusterAffinity:
       clusterNames:
-        - cluster1
-        - cluster2
+        - kind-member1
+        - kind-member2
 EOF
 }
 
@@ -136,8 +136,8 @@ spec:
   placement:
     clusterAffinity:
       clusterNames:
-        - cluster1
-        - cluster2
+        - kind-member1
+        - kind-member2
     replicaScheduling:
       replicaDivisionPreference: Aggregated
       replicaSchedulingType: Divided
