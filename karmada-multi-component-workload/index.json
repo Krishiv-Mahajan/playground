@@ -1,0 +1,67 @@
+{
+    "title": "Multi-Component AI Workload",
+    "description": "Deploy a multi-component AI workload across member clusters using Karmada.",
+    "details": {
+      "intro": {
+        "text": "intro.md",
+        "foreground": "foreground.sh"
+      },
+      "steps": [
+        {
+          "title": "Environment overview",
+          "text": "step1/text.md",
+          "verify": "step1/verify.sh"
+        },
+        {
+          "title": "Install karmadactl",
+          "text": "step2/text.md",
+          "verify": "step2/verify.sh"
+        },
+        {
+          "title": "Initialize Karmada control plane",
+          "text": "step3/text.md",
+          "verify": "step3/verify.sh"
+        },
+        {
+          "title": "Prepare member clusters",
+          "text": "step4/text.md",
+          "verify": "step4/verify.sh"
+        },
+        {
+          "title": "Join member clusters to the host cluster",
+          "text": "step5/text.md",
+          "verify": "step5/verify.sh"
+        },
+        {
+          "title": "Install the Custom Resource Definition (CRD)",
+          "text": "step6/text.md"
+        },
+        {
+          "title": "Propagate the CRD to Member Clusters",
+          "text": "step7/text.md"
+        },
+        {
+          "title": "Create the Multi-Component Workload",
+          "text": "step8/text.md"
+        },
+        {
+          "title": "Apply the Scheduling Strategy",
+          "text": "step9/text.md"
+        },
+        {
+          "title": "Inspect ResourceBinding",
+          "text": "step10/text.md"
+        },
+        {
+          "title": "Verify Successful Scheduling",
+          "text": "step11/text.md"
+        }
+      ],
+      "finish": {
+        "text": "finish.md"
+      }
+    },
+    "backend": {
+      "imageid": "kubernetes-kubeadm-2nodes"
+    }
+  }
