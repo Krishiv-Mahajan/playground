@@ -234,22 +234,25 @@ spec:
 RICEOF
 }
 
-function karmadaInitConfig() {
-    cat << 'EOF' > karmada-init-config.yaml
-apiVersion: config.karmada.io/v1alpha1
-kind: KarmadaInitConfig
-spec:
-  components:
-    karmadaControllerManager:
-      extraArgs:
-        feature-gates: "MultiplePodTemplatesScheduling=true"
-    karmadaScheduler:
-      extraArgs:
-        feature-gates: "MultiplePodTemplatesScheduling=true"
-    karmadaWebhook:
-      extraArgs:
-        feature-gates: "MultiplePodTemplatesScheduling=true"
+# Patches the three Karmada control plane components to enable the
+# MultiplePodTemplatesScheduling feature gate after karmadactl init.
+function enableFeatureGate() {
+    cat << 'EOF' > enable-feature-gate.sh
+#!/usr/bin/env bash
+set -e
+KUBECONFIG=/etc/karmada/karmada-apiserver.config
+for deploy in karmada-controller-manager karmada-scheduler karmada-webhook; do
+  kubectl --kubeconfig $KUBECONFIG patch deployment $deploy -n karmada-system \
+    --type=json \
+    -p='[{"op":"add","path":"/spec/template/spec/containers/0/command/-","value":"--feature-gates=MultiplePodTemplatesScheduling=true"}]'
+done
+echo "Feature gate enabled. Waiting for rollout..."
+for deploy in karmada-controller-manager karmada-scheduler karmada-webhook; do
+  kubectl --kubeconfig $KUBECONFIG rollout status deployment/$deploy -n karmada-system --timeout=120s
+done
+echo "Done."
 EOF
+    chmod +x enable-feature-gate.sh
 }
 
 kubectl delete node node01
@@ -263,11 +266,11 @@ cluster2Config
 copyConfigFilesToNode
 
 # generate scenario yamls
-karmadaInitConfig
 crdPolicy
 volcanoJob
 jobPolicy
 resourceInterpreterCustomization
+enableFeatureGate
 
 # clean screen
 clear
