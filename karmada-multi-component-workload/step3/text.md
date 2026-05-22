@@ -10,13 +10,13 @@ The config file enables the feature gate on all three required components:
 ```yaml
 karmadaControllerManager:
   extraArgs:
-    - --feature-gates=MultiplePodTemplatesScheduling=true
+    feature-gates: "MultiplePodTemplatesScheduling=true"
 karmadaScheduler:
   extraArgs:
-    - --feature-gates=MultiplePodTemplatesScheduling=true
+    feature-gates: "MultiplePodTemplatesScheduling=true"
 karmadaWebhook:
   extraArgs:
-    - --feature-gates=MultiplePodTemplatesScheduling=true
+    feature-gates: "MultiplePodTemplatesScheduling=true"
 ```
 
 **Verify initialization:**

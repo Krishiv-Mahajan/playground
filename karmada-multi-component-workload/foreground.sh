@@ -242,13 +242,13 @@ spec:
   components:
     karmadaControllerManager:
       extraArgs:
-        - --feature-gates=MultiplePodTemplatesScheduling=true
+        feature-gates: "MultiplePodTemplatesScheduling=true"
     karmadaScheduler:
       extraArgs:
-        - --feature-gates=MultiplePodTemplatesScheduling=true
+        feature-gates: "MultiplePodTemplatesScheduling=true"
     karmadaWebhook:
       extraArgs:
-        - --feature-gates=MultiplePodTemplatesScheduling=true
+        feature-gates: "MultiplePodTemplatesScheduling=true"
 EOF
 }
 
