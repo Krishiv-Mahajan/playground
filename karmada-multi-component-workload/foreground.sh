@@ -183,10 +183,31 @@ spec:
           local components = {}
           local tasks = get(observedObj, {"spec", "tasks"})
           if tasks == nil then return components end
+          
+          local function extractRequirements(template)
+            local reqs = { resourceRequest = {} }
+            local containers = template.spec and template.spec.containers or {}
+            for _, c in ipairs(containers) do
+              if c.resources and c.resources.requests then
+                for k, v in pairs(c.resources.requests) do
+                  reqs.resourceRequest[k] = v
+                end
+              end
+            end
+            return reqs
+          end
+          
           for i, task in ipairs(tasks) do
             -- task.replicas is the per-task replica count field in VolcanoJob
             local replicas = to_num(task.replicas, 1)
-            local requires = kube.accuratePodRequirements(task.template)
+            
+            local requires
+            if kube and kube.accuratePodRequirements then
+               requires = kube.accuratePodRequirements(task.template)
+            else
+               requires = extractRequirements(task.template)
+            end
+            
             local taskName = task.name
             if taskName == nil or taskName == '' then
               taskName = "task-" .. (i - 1)
@@ -236,19 +257,22 @@ RICEOF
 
 # Patches the three Karmada control plane components to enable the
 # MultiplePodTemplatesScheduling feature gate after karmadactl init.
+# NOTE: these deployments run on the HOST cluster (default kubeconfig),
+# NOT inside the Karmada control plane.
 function enableFeatureGate() {
     cat << 'EOF' > enable-feature-gate.sh
 #!/usr/bin/env bash
 set -e
-KUBECONFIG=/etc/karmada/karmada-apiserver.config
+# Karmada components run on the HOST cluster — use default kubeconfig
 for deploy in karmada-controller-manager karmada-scheduler karmada-webhook; do
-  kubectl --kubeconfig $KUBECONFIG patch deployment $deploy -n karmada-system \
+  # Patch args instead of command, as some versions rely on image entrypoint
+  kubectl patch deployment $deploy -n karmada-system \
     --type=json \
-    -p='[{"op":"add","path":"/spec/template/spec/containers/0/command/-","value":"--feature-gates=MultiplePodTemplatesScheduling=true"}]'
+    -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--feature-gates=MultiplePodTemplatesScheduling=true"}]'
 done
 echo "Feature gate enabled. Waiting for rollout..."
 for deploy in karmada-controller-manager karmada-scheduler karmada-webhook; do
-  kubectl --kubeconfig $KUBECONFIG rollout status deployment/$deploy -n karmada-system --timeout=120s
+  kubectl rollout status deployment/$deploy -n karmada-system --timeout=120s
 done
 echo "Done."
 EOF
