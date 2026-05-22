@@ -13,6 +13,7 @@ KUBECONFIG_PATH=${KUBECONFIG_PATH:-"${HOME}/.kube"}
 
 function installKind() {
     cat << EOF > installKind.sh
+    set -e
     wget https://github.com/kubernetes-sigs/kind/releases/download/${kind_version}/kind-linux-amd64
     chmod +x kind-linux-amd64
     sudo mv kind-linux-amd64 /usr/local/bin/kind
@@ -21,21 +22,21 @@ EOF
 
 function createCluster() {
     cat << EOF > createCluster.sh
+    set -e
     kind delete cluster --name=member1 || true
     kind create cluster --name=member1 --config=cluster1.yaml
     # Patch kindnet to use less CPU
-    kubectl --kubeconfig \$HOME/.kube/config patch daemonset kindnet -n kube-system --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources/requests/cpu", "value": "50m"}, {"op": "replace", "path": "/spec/template/spec/containers/0/resources/limits/cpu", "value": "200m"}]'
+    kubectl --kubeconfig \$HOME/.kube/config patch daemonset kindnet -n kube-system --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/resources", "value": {"requests": {"cpu": "50m"}, "limits": {"cpu": "200m"}}}]'
     # Patch coredns
     kubectl --kubeconfig \$HOME/.kube/config patch deployment coredns -n kube-system --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources/requests/cpu", "value": "30m"}, {"op": "replace", "path": "/spec/template/spec/containers/0/resources/limits/cpu", "value": "100m"}]'
     mv \$HOME/.kube/config ~/config-member1
 
     kind delete cluster --name=member2 || true
     kind create cluster --name=member2 --config=cluster2.yaml
-    kubectl --kubeconfig \$HOME/.kube/config patch daemonset kindnet -n kube-system --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources/requests/cpu", "value": "50m"}, {"op": "replace", "path": "/spec/template/spec/containers/0/resources/limits/cpu", "value": "200m"}]'
+    kubectl --kubeconfig \$HOME/.kube/config patch daemonset kindnet -n kube-system --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/resources", "value": {"requests": {"cpu": "50m"}, "limits": {"cpu": "200m"}}}]'
     kubectl --kubeconfig \$HOME/.kube/config patch deployment coredns -n kube-system --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources/requests/cpu", "value": "30m"}, {"op": "replace", "path": "/spec/template/spec/containers/0/resources/limits/cpu", "value": "100m"}]'
     mv \$HOME/.kube/config config-member2
 
-    KUBECONFIG=~/config-member1:~/config-member2 kubectl config view --merge --flatten >> ${KUBECONFIG_PATH}/config
     # modify ip
     sed -i "s/${local_ip}/${member_cluster_ip}/g"  config-member1
     # set StrictHostKeyChecking to no to avoid prompting, the same below
@@ -265,7 +266,7 @@ function copyConfigFilesToNode() {
         root@${member_cluster_ip}:~
 }
 
-kubectl delete node node01
+kubectl delete node node01 || true
 kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
 
 # prepare helper scripts and cluster config files
