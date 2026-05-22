@@ -234,6 +234,24 @@ spec:
 RICEOF
 }
 
+function karmadaInitConfig() {
+    cat << 'EOF' > karmada-init-config.yaml
+apiVersion: config.karmada.io/v1alpha1
+kind: KarmadaInitConfig
+spec:
+  components:
+    karmadaControllerManager:
+      extraArgs:
+        - --feature-gates=MultiplePodTemplatesScheduling=true
+    karmadaScheduler:
+      extraArgs:
+        - --feature-gates=MultiplePodTemplatesScheduling=true
+    karmadaWebhook:
+      extraArgs:
+        - --feature-gates=MultiplePodTemplatesScheduling=true
+EOF
+}
+
 kubectl delete node node01
 kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
 
@@ -245,6 +263,7 @@ cluster2Config
 copyConfigFilesToNode
 
 # generate scenario yamls
+karmadaInitConfig
 crdPolicy
 volcanoJob
 jobPolicy

@@ -4,15 +4,39 @@ RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebind
 
 **What to look for in the output:**
 
-**1. `spec.clusters` — single-cluster placement**
-The `spreadConstraints` in the policy (MaxGroups=1) forced Karmada to pick exactly **one** cluster for the whole job:
+**1. `spec.components` — per-task resource breakdown**
+
+This is the key output that proves Karmada understood the internal structure of the VolcanoJob. The `GetComponents` Lua function extracted each task's replica count and resource requirements:
+
+```yaml
+spec:
+  components:
+  - name: job-nginx1
+    replicas: 1
+    replicaRequirements:
+      resourceRequest:
+        cpu: 200m
+        memory: 100Mi
+  - name: job-nginx2
+    replicas: 2
+    replicaRequirements:
+      resourceRequest:
+        cpu: 100m
+        memory: 100Mi
+```
+
+This means Karmada knows the **total cluster requirement** is `400m CPU + 300Mi RAM` before it picks a cluster.
+
+**2. `spec.clusters` — single-cluster placement**
+
+The `spreadConstraints` (MaxGroups=1) forced all components onto exactly **one** cluster:
 ```yaml
 spec:
   clusters:
-  - name: kind-member1   # all tasks land here together
+  - name: kind-member1
 ```
 
-**2. `status.conditions` — scheduling confirmation**
+**3. `status.conditions` — scheduling confirmation**
 ```yaml
 status:
   conditions:
@@ -23,5 +47,3 @@ status:
     status: "True"
     message: All works have been successfully applied
 ```
-
-**Note on `spec.components`:** This field — which would show the per-task breakdown (job-nginx1: 1×200m CPU, job-nginx2: 2×100m CPU) — is being added to Karmada's ResourceBinding API in an upcoming release. The `GetComponents` Lua function in our `ResourceInterpreterCustomization` is already written and ready for when that version ships.
