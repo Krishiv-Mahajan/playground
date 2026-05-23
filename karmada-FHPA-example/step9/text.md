@@ -57,5 +57,4 @@ Let's check if the pods are actually running:
 RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get pods --operation-scope members`{{exec}}
 
 > **Note:** It takes a brief moment for the scheduler to distribute the workload and for the clusters to pull the container image. If the command returns "No resources found", wait ~30 seconds and run it again. Since our initial replica count is 1, you should see exactly 1 pod running on one of the member clusters.
->
-> *Troubleshooting:* If you see several lines of `Unhandled Error` regarding `metrics.k8s.io`, don't worry! This is normal and just indicates that the Karmada metrics adapter is still starting up in the background. You can safely ignore these warnings.
+

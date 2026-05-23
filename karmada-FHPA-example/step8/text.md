@@ -59,8 +59,6 @@ This creates an Nginx workload (with 1 initial replica) and a corresponding `Clu
 
 RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get deployment nginx`{{exec}}
 
-This command confirms that the Nginx Deployment template has been successfully registered in the control plane.
-
 **Verify the Service:**
 
 RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get service nginx-service`{{exec}}

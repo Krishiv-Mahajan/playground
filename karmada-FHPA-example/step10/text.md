@@ -29,10 +29,3 @@ RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/fhpa/
 
 This creates a `MultiClusterService` object to enable cross-cluster access for the `nginx-service` across `kind-member1` and `kind-member2`. When a client in one member cluster accesses the service, the request can be automatically routed to backend pods in any cluster.
 
-**Verify the Multi-Cluster Service:**
-
-RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get svc --operation-scope members`{{exec}}
-
-> *Note: If you see `Unhandled Error` warnings regarding metrics, you can safely ignore them.*
-
-You should see the `nginx-service` running on the member clusters. This is the service we will use to generate load!

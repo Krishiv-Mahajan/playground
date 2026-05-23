@@ -108,30 +108,7 @@ karmadactl addons enable karmada-metrics-adapter --kubeconfig=$HOME/.kube/config
 EOF
     chmod +x installMetricsAdapter.sh
 
-    cat << 'EOF' > installCustomMetricsAPI.sh
-# Register the custom metrics APIService on member clusters
-  mkdir -p ~/fhpa
 
-cat << 'YAML' > ~/fhpa/customMetricsAPI.yaml
-apiVersion: apiregistration.k8s.io/v1
-kind: APIService
-metadata:
-  name: v1beta1.custom.metrics.k8s.io
-spec:
-  service:
-    name: karmada-metrics-adapter
-    namespace: karmada-system
-  group: custom.metrics.k8s.io
-  version: v1beta1
-  insecureSkipTLSVerify: true
-  groupPriorityMinimum: 100
-  versionPriority: 100
-YAML
-
-kubectl --kubeconfig=$HOME/.kube/config-member1 apply -f ~/fhpa/customMetricsAPI.yaml
-kubectl --kubeconfig=$HOME/.kube/config-member2 apply -f ~/fhpa/customMetricsAPI.yaml
-EOF
-    chmod +x installCustomMetricsAPI.sh
 }
 
 function nginxDeployment() {
