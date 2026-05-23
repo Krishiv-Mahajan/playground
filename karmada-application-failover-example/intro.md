@@ -6,4 +6,4 @@ Karmada (Kubernetes Armada) is a Kubernetes management system that enables you t
 
 In multi-cluster scenarios, user workloads may be deployed in multiple clusters to improve service high availability. While Karmada supports cluster-level failover when detecting a cluster fault, some failures only affect specific applications. For example, a cluster's control plane might be healthy, but an application fails to run due to resource constraints or being recycled.
 
-Karmada provides a means of fault migration from an application perspective. In this scenario, we will first set up Karmada and join member clusters, and then learn how to configure a `PropagationPolicy` for application-level failover.
+Karmada provides a means of fault migration from an application perspective. In this scenario, we will learn how to configure application failover in Karmada.

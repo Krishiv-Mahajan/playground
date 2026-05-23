@@ -89,7 +89,7 @@ function propagationPolicy() {
       failover:
         application:
           decisionConditions:
-            tolerationSeconds: 120
+            tolerationSeconds: 30
           purgeMode: Never
       propagateDeps: true
       resourceSelectors:
@@ -140,24 +140,6 @@ function overridePolicy() {
 EOF
 }
 
-function applyPoliciesScript() {
-    cat << 'EOF' > apply-policies.sh
-#!/bin/bash
-echo "Applying OverridePolicy..."
-kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/overridePolicy.yaml
-
-echo "Waiting for OverridePolicy to be established..."
-sleep 3
-
-echo "Verifying OverridePolicy..."
-kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get overridepolicy nginx-override -o yaml
-
-echo "OverridePolicy confirmed. Applying PropagationPolicy..."
-kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f ~/nginx/propagationPolicy.yaml
-EOF
-    chmod +x apply-policies.sh
-}
-
 function copyConfigFilesToNode() {
     scp -o StrictHostKeyChecking=no \
         installKind.sh \
@@ -183,7 +165,7 @@ cd nginx
 nginxDeployment
 overridePolicy
 propagationPolicy
-applyPoliciesScript
+
 
 # clean screen 
 clear
