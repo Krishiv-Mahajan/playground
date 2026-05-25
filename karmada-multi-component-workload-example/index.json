@@ -1,6 +1,6 @@
 {
   "title": "Multi-Component Workload Scheduling in Karmada for AI/Big Data",
-  "description": "Learn how Karmada schedules complex multi-component workloads like Flink and Volcano, accurately extracting resource requirements per component and enforcing co-location.",
+  "description": "Learn how Karmada schedules complex multi-component workloads like FlinkDeployment, accurately extracting resource requirements per component and enforcing co-location.",
   "details": {
     "intro": {
       "text": "intro.md",
@@ -46,16 +46,6 @@
         "title": "Inspect Flink ResourceBinding",
         "text": "step8/text.md",
         "verify": "step8/verify.sh"
-      },
-      {
-        "title": "Deploy VolcanoJob & Policy",
-        "text": "step9/text.md",
-        "verify": "step9/verify.sh"
-      },
-      {
-        "title": "Inspect Volcano ResourceBinding",
-        "text": "step10/text.md",
-        "verify": "step10/verify.sh"
       }
     ],
     "finish": {

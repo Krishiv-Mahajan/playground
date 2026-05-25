@@ -25,7 +25,7 @@ function createCluster() {
     mv $HOME/.kube/config ~/config-member1
     kind create cluster --name=member2 --config=cluster2.yaml
     mv $HOME/.kube/config config-member2
-    KUBECONFIG=~/config-member1:~/config-member2 kubectl config view --merge --flatten >> ${KUBECONFIG_PATH}/config
+    KUBECONFIG=~/config-member1:~/config-member2 kubectl config view --merge --flatten > ${KUBECONFIG_PATH}/config
     # modify ip
     sed -i "s/${local_ip}/${member_cluster_ip}/g"  config-member1
     # set StrictHostKeyChecking to no to avoid prompting, the same below
@@ -78,9 +78,6 @@ spec:
     - apiVersion: apiextensions.k8s.io/v1
       kind: CustomResourceDefinition
       name: flinkdeployments.flink.apache.org
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: jobs.batch.volcano.sh
   placement:
     clusterAffinity:
       clusterNames:
@@ -124,7 +121,7 @@ spec:
           local jm_cpu    = get(observedObj, {"spec","jobManager","resource","cpu"})
           local jm_memory = get(observedObj, {"spec","jobManager","resource","memory"})
           if jm_cpu ~= nil then jm_requires.resourceRequest.cpu = jm_cpu end
-          if jm_memory ~= nil then jm_requires.resourceRequest.memory = kube.getResourceQuantity(jm_memory) end
+          if jm_memory ~= nil then jm_requires.resourceRequest.memory = jm_memory end
           table.insert(components, { name = "jobmanager", replicas = jm_replicas, replicaRequirements = jm_requires })
           local tm_replicas = to_num(get(observedObj, {"spec","taskManager","replicas"}), nil)
           if tm_replicas == nil then
@@ -137,59 +134,8 @@ spec:
           local tm_cpu    = get(observedObj, {"spec","taskManager","resource","cpu"})
           local tm_memory = get(observedObj, {"spec","taskManager","resource","memory"})
           if tm_cpu ~= nil then tm_requires.resourceRequest.cpu = tm_cpu end
-          if tm_memory ~= nil then tm_requires.resourceRequest.memory = kube.getResourceQuantity(tm_memory) end
+          if tm_memory ~= nil then tm_requires.resourceRequest.memory = tm_memory end
           table.insert(components, { name = "taskmanager", replicas = tm_replicas, replicaRequirements = tm_requires })
-          return components
-        end
-EOF
-
-    # ResourceInterpreterCustomization for Volcano Job (componentResource)
-    cat << 'EOF' > /root/examples/volcano-interpreter.yaml
-apiVersion: config.karmada.io/v1alpha1
-kind: ResourceInterpreterCustomization
-metadata:
-  name: volcano-component-interpreter
-spec:
-  target:
-    apiVersion: batch.volcano.sh/v1alpha1
-    kind: Job
-  customizations:
-    componentResource:
-      luaScript: |
-        local kube = require("kube")
-        local function get(obj, path)
-          local cur = obj
-          for i = 1, #path do
-            if cur == nil then return nil end
-            cur = cur[path[i]]
-          end
-          return cur
-        end
-        local function to_num(v, default)
-          if v == nil or v == '' then return default end
-          local n = tonumber(v)
-          if n ~= nil then return n end
-          return default
-        end
-        function GetComponents(observedObj)
-          local components = {}
-          local tasks = get(observedObj, {"spec","tasks"})
-          if tasks == nil then return components end
-          for i, task in ipairs(tasks) do
-            local replicas = to_num(task.minAvailable, 1)
-            local requires = { resourceRequest = {} }
-            local containers = get(task, {"template","spec","containers"})
-            if containers ~= nil and #containers > 0 then
-              local res = get(containers[1], {"resources","requests"})
-              if res ~= nil then
-                if res.cpu ~= nil then requires.resourceRequest.cpu = res.cpu end
-                if res.memory ~= nil then requires.resourceRequest.memory = res.memory end
-              end
-            end
-            local taskName = task.name
-            if taskName == nil or taskName == '' then taskName = "task-" .. (i - 1) end
-            table.insert(components, { name = taskName, replicas = replicas, replicaRequirements = requires })
-          end
           return components
         end
 EOF
@@ -216,12 +162,12 @@ spec:
     replicas: 1
     resource:
       cpu: 1
-      memory: 100m
+      memory: 100Mi
   serviceAccount: flink
   taskManager:
     resource:
       cpu: 1
-      memory: 100m
+      memory: 100Mi
 EOF
 
     # Flink PropagationPolicy
@@ -249,99 +195,9 @@ spec:
       replicaDivisionPreference: Aggregated
 EOF
 
-    # VolcanoJob CR (matches the upstream test manifest structure)
-    cat << 'EOF' > /root/examples/volcanojob-cr.yaml
-apiVersion: batch.volcano.sh/v1alpha1
-kind: Job
-metadata:
-  name: volcanojob-sample
-spec:
-  maxRetry: 3
-  minAvailable: 3
-  plugins:
-    env: []
-    ssh: []
-    svc:
-    - --disable-network-policy=true
-  queue: default
-  schedulerName: volcano
-  tasks:
-  - minAvailable: 1
-    name: job-nginx1
-    replicas: 1
-    template:
-      metadata:
-        name: nginx1
-      spec:
-        containers:
-        - args:
-          - sleep 10
-          command:
-          - bash
-          - -c
-          image: nginx:latest
-          imagePullPolicy: IfNotPresent
-          name: nginx
-          resources:
-            requests:
-              cpu: 200m
-              memory: 100Mi
-        nodeSelector:
-          kubernetes.io/os: linux
-        restartPolicy: OnFailure
-  - minAvailable: 2
-    name: job-nginx2
-    replicas: 3
-    template:
-      metadata:
-        name: nginx2
-      spec:
-        containers:
-        - args:
-          - sleep 30
-          command:
-          - bash
-          - -c
-          image: nginx:latest
-          imagePullPolicy: IfNotPresent
-          name: nginx
-          resources:
-            requests:
-              cpu: 100m
-              memory: 100Mi
-        nodeSelector:
-          kubernetes.io/os: linux
-        restartPolicy: OnFailure
-EOF
-
-    # Volcano PropagationPolicy
-    cat << 'EOF' > /root/examples/volcano-policy.yaml
-apiVersion: policy.karmada.io/v1alpha1
-kind: PropagationPolicy
-metadata:
-  name: volcano-propagation
-spec:
-  resourceSelectors:
-    - apiVersion: batch.volcano.sh/v1alpha1
-      kind: Job
-      name: volcanojob-sample
-  placement:
-    clusterAffinity:
-      clusterNames:
-        - kind-member1
-        - kind-member2
-    spreadConstraints:
-      - spreadByField: cluster
-        maxGroups: 1
-        minGroups: 1
-    replicaScheduling:
-      replicaSchedulingType: Divided
-      replicaDivisionPreference: Aggregated
-EOF
 
     # Download CRDs
     curl -sSL https://raw.githubusercontent.com/karmada-io/karmada/master/test/e2e/suites/base/manifest/flinkdeployments.flink.apache.org-v1.yaml -o /root/examples/flinkdeployments.flink.apache.org-v1.yaml
-    curl -sSL https://raw.githubusercontent.com/karmada-io/karmada/master/test/e2e/suites/base/manifest/batch.volcano.sh_jobs.yaml -o /root/examples/batch.volcano.sh_jobs.yaml
 }
 
 kubectl delete node node01

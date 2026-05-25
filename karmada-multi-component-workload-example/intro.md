@@ -6,8 +6,8 @@ Karmada aims to provide turnkey automation for multi-cluster application managem
 
 # What is Multi-Component Workload Scheduling?
 
-Many advanced applications are not just simple, identical replicas of a single container. They consist of multiple, tightly-coupled components with distinct resource profiles (for example, Apache Flink requires a coordinating `JobManager` and several worker `TaskManager`s). 
+Many advanced applications are not just simple, identical replicas of a single container. They consist of multiple, tightly-coupled components with distinct resource profiles (for example, Apache Flink requires a coordinating `JobManager` and several worker `TaskManager`s, and Volcano AI batch jobs require `ParameterServer` and `Worker` nodes). 
 
 If a multi-cluster scheduler treats these complex jobs as a single generic workload, it may underestimate the total resources required, or accidentally scatter the tightly-coupled components across entirely different geographical clusters, destroying the low-latency communication required for the job to function.
 
-In this scenario, we will deploy multi-component workloads (Flink and Volcano) and use custom Resource Interpreters to teach Karmada how to extract their individual components. We will then use `SpreadConstraints` to ensure all components of a job are scheduled atomistically to the exact same target cluster.
+In this scenario, we will deploy a multi-component workload (FlinkDeployment, though VolcanoJob is also fully supported) and use custom Resource Interpreters to teach Karmada how to extract its individual components. We will then use `SpreadConstraints` to ensure all workload components are scheduled atomistically to the identical target cluster with sufficient resources.
