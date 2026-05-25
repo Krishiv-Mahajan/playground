@@ -12,4 +12,4 @@ To confirm the metrics server is running normally, wait a few moments and then c
 
 RUN `kubectl --kubeconfig=$HOME/.kube/config-member1 top pods --all-namespaces`{{exec}}
 
-If this command returns metrics without errors, the `metrics-server` is ready!
+RUN `kubectl --kubeconfig=$HOME/.kube/config-member2 top pods --all-namespaces`{{exec}}

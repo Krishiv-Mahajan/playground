@@ -8,8 +8,6 @@ Before generating load, confirm the current state:
 
 RUN `karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get pods --operation-scope members`{{exec}}
 
-> *Note: As before, you can safely ignore any `metrics.k8s.io` Unhandled Error warnings if they appear.*
-
 You should see exactly 1 pod running.
 
 **Generate CPU Load:**
