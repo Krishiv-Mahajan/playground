@@ -24,14 +24,14 @@ function createCluster() {
     kind create cluster --name=member1 --config=cluster1.yaml
     mv $HOME/.kube/config ~/config-member1
     kind create cluster --name=member2 --config=cluster2.yaml
-    mv $HOME/.kube/config config-member2
-    KUBECONFIG=~/config-member1:~/config-member2 kubectl config view --merge --flatten >> ${KUBECONFIG_PATH}/config
+    mv $HOME/.kube/config ~/config-member2
+    KUBECONFIG=~/config-member1:~/config-member2 kubectl config view --merge --flatten > ${KUBECONFIG_PATH}/config
     # modify ip
-    sed -i "s/${local_ip}/${member_cluster_ip}/g"  config-member1
+    sed -i "s/${local_ip}/${member_cluster_ip}/g"  ~/config-member1
     # set StrictHostKeyChecking to no to avoid prompting, the same below
-    scp -o StrictHostKeyChecking=no config-member1 root@${host_cluster_ip}:$HOME/.kube/config-member1
-    sed -i "s/${local_ip}/${member_cluster_ip}/g"  config-member2
-    scp -o StrictHostKeyChecking=no config-member2 root@${host_cluster_ip}:$HOME/.kube/config-member2
+    scp -o StrictHostKeyChecking=no ~/config-member1 root@${host_cluster_ip}:$HOME/.kube/config-member1
+    sed -i "s/${local_ip}/${member_cluster_ip}/g"  ~/config-member2
+    scp -o StrictHostKeyChecking=no ~/config-member2 root@${host_cluster_ip}:$HOME/.kube/config-member2
 EOF
 }
 
@@ -149,8 +149,8 @@ function copyConfigFilesToNode() {
         root@${member_cluster_ip}:~
 }
 
-kubectl delete node node01
-kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule-
+kubectl delete node node01 --ignore-not-found
+kubectl taint node controlplane node-role.kubernetes.io/control-plane:NoSchedule- || true
 
 # install kind and create member clusters
 installKind
