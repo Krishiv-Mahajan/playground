@@ -15,3 +15,9 @@ This sets up the Karmada control plane on the host cluster with multi-component 
 RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config config get-contexts karmada-apiserver`{{exec}}
 
 This outputs the `karmada-apiserver` context, ensuring that it is available and configured correctly.
+
+Verify that the control plane deployments contain the required feature gates and scheduler estimator flag:
+
+RUN `for component in karmada-controller-manager karmada-scheduler karmada-webhook; do kubectl --kubeconfig /etc/karmada/karmada-apiserver.config -n karmada-system get deployment "$component" -o json | jq -r '.spec.template.spec.containers[0].command[]' | grep -q "MultiplePodTemplatesScheduling=true" || exit 1; done && kubectl --kubeconfig /etc/karmada/karmada-apiserver.config -n karmada-system get deployment karmada-scheduler -o json | jq -r '.spec.template.spec.containers[0].command[]' | grep -q "enable-scheduler-estimator=true"`{{exec}}
+
+This confirms that multi-component scheduling is enabled on the controller manager, scheduler, and webhook, and that the scheduler is configured to use scheduler estimators.

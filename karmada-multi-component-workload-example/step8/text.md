@@ -22,6 +22,20 @@ RUN `for i in $(seq 1 20); do CONDITION=$(kubectl --kubeconfig /etc/karmada/karm
 
 The condition must have `"status": "True"`. If it remains `"False"`, the `reason` and `message` fields explain whether the failure is caused by estimator connectivity, insufficient member-cluster capacity, or an invalid placement policy.
 
+If the message is `failed to select clusters: no enough resource when selecting 1 clusters`, inspect the requests extracted from the binding and the capacity reported by each member cluster:
+
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding $BINDING_NAME -n default -o json | jq '{components: .spec.components, condition: (.status.conditions[]? | select(.type=="Scheduled"))}'`{{exec}}
+
+RUN `kubectl --kubeconfig $HOME/.kube/config-member1 get nodes -o json | jq '[.items[].status.allocatable] | add' && kubectl --kubeconfig $HOME/.kube/config-member2 get nodes -o json | jq '[.items[].status.allocatable] | add'`{{exec}}
+
+Check the estimator logs for member-cluster watch or authentication errors:
+
+RUN `HOST_KUBECONFIG=${HOST_KUBECONFIG:-$HOME/.kube/config}; kubectl --kubeconfig "$HOST_KUBECONFIG" -n karmada-system logs deployment/karmada-scheduler-estimator-kind-member1 --tail=100; kubectl --kubeconfig "$HOST_KUBECONFIG" -n karmada-system logs deployment/karmada-scheduler-estimator-kind-member2 --tail=100`{{exec}}
+
+After correcting an estimator or member-cluster problem, reapply the policy to trigger scheduling again:
+
+RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config apply -f /root/examples/flink-policy.yaml`{{exec}}
+
 Finally, let's look at the `spec.clusters` array to confirm it was assigned to a single cluster, honoring our `maxGroups: 1` constraint from Step 7:
 
 RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding $BINDING_NAME -n default -o json | jq '.spec.clusters'`{{exec}}
