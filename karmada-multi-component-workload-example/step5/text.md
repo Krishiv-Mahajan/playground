@@ -15,7 +15,15 @@
    RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get clusters`{{exec}}
 
    This command lists all the member clusters that have successfully joined the Karmada control plane.
-3. The following image shows the expected output, indicating that the member clusters have been joined successfully.
+
+3. Deploy one scheduler estimator for each member cluster. The estimator must be deployed after the member kubeconfigs are available, and the scheduler was initialized with `--enable-scheduler-estimator=true` in the previous step.
+
+   RUN `curl -sSL https://raw.githubusercontent.com/karmada-io/karmada/master/hack/deploy-scheduler-estimator.sh | bash -s -- /etc/karmada/karmada-apiserver.config karmada-apiserver $HOME/.kube/config-member1 kind-member1`{{exec}}
+
+   RUN `curl -sSL https://raw.githubusercontent.com/karmada-io/karmada/master/hack/deploy-scheduler-estimator.sh | bash -s -- /etc/karmada/karmada-apiserver.config karmada-apiserver $HOME/.kube/config-member2 kind-member2`{{exec}}
+
+   These commands create the estimator Deployments and Services in `karmada-system`, allowing the scheduler to query capacity for both member clusters.
+4. The following image shows the expected output, indicating that the member clusters have been joined successfully.
 
 ![Joined clusters](../image/success.png)
 
