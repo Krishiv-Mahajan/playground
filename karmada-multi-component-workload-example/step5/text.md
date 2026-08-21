@@ -18,9 +18,9 @@
 
 3. Deploy one scheduler estimator for each member cluster. The estimator must be deployed after the member kubeconfigs are available, and the scheduler was initialized with `--enable-scheduler-estimator=true` in the previous step.
 
-   RUN `curl -sSL https://raw.githubusercontent.com/karmada-io/karmada/master/hack/deploy-scheduler-estimator.sh | bash -s -- /etc/karmada/karmada-apiserver.config karmada-apiserver $HOME/.kube/config-member1 kind-member1`{{exec}}
+   RUN `mkdir -p /tmp/karmada-estimator/hack /tmp/karmada-estimator/artifacts/deploy && curl -sSL https://raw.githubusercontent.com/karmada-io/karmada/master/hack/deploy-scheduler-estimator.sh -o /tmp/karmada-estimator/hack/deploy-scheduler-estimator.sh && curl -sSL https://raw.githubusercontent.com/karmada-io/karmada/master/artifacts/deploy/karmada-scheduler-estimator.yaml -o /tmp/karmada-estimator/artifacts/deploy/karmada-scheduler-estimator.yaml && bash /tmp/karmada-estimator/hack/deploy-scheduler-estimator.sh /etc/karmada/karmada-apiserver.config karmada-apiserver $HOME/.kube/config-member1 kind-member1`{{exec}}
 
-   RUN `curl -sSL https://raw.githubusercontent.com/karmada-io/karmada/master/hack/deploy-scheduler-estimator.sh | bash -s -- /etc/karmada/karmada-apiserver.config karmada-apiserver $HOME/.kube/config-member2 kind-member2`{{exec}}
+   RUN `bash /tmp/karmada-estimator/hack/deploy-scheduler-estimator.sh /etc/karmada/karmada-apiserver.config karmada-apiserver $HOME/.kube/config-member2 kind-member2`{{exec}}
 
    These commands create the estimator Deployments and Services in `karmada-system`, allowing the scheduler to query capacity for both member clusters.
 4. The following image shows the expected output, indicating that the member clusters have been joined successfully.
