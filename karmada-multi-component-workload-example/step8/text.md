@@ -16,11 +16,11 @@ This outputs the components array, confirming Karmada correctly extracted both t
 
 #### Scheduling Result
 
-Check that the workload was successfully scheduled by the Karmada control plane:
+Wait for the scheduler to process the binding, then inspect the complete scheduling condition:
 
-RUN `kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding $BINDING_NAME -n default -o json | jq '.status.conditions[] | select(.type=="Scheduled") | .status'`{{exec}}
+RUN `for i in $(seq 1 20); do CONDITION=$(kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding $BINDING_NAME -n default -o json | jq -c '.status.conditions[]? | select(.type=="Scheduled")'); echo "$CONDITION"; [ "$(echo "$CONDITION" | jq -r '.status')" = "True" ] && break; sleep 3; done`{{exec}}
 
-This outputs `"True"`, indicating the workload was successfully scheduled.
+The condition must have `"status": "True"`. If it remains `"False"`, the `reason` and `message` fields explain whether the failure is caused by estimator connectivity, insufficient member-cluster capacity, or an invalid placement policy.
 
 Finally, let's look at the `spec.clusters` array to confirm it was assigned to a single cluster, honoring our `maxGroups: 1` constraint from Step 7:
 

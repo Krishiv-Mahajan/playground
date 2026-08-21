@@ -14,4 +14,7 @@ for i in $(seq 1 20); do
   karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get flinkdeployment --operation-scope members | grep "flinkdeployment-sample" &> /dev/null && break
   sleep 3
 done
+SCHEDULED=$(kubectl --kubeconfig /etc/karmada/karmada-apiserver.config get resourcebinding "$BINDING_NAME" -n default -o json | jq -r '.status.conditions[]? | select(.type=="Scheduled") | .status')
+[ "$SCHEDULED" = "True" ] || exit 1
+
 karmadactl --kubeconfig /etc/karmada/karmada-apiserver.config get flinkdeployment --operation-scope members | grep "flinkdeployment-sample" &> /dev/null || exit 1
